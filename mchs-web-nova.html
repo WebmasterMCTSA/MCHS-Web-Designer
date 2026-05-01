@@ -356,7 +356,6 @@
     line-height: 1.8;
   }
 
-  /* 4-column pricing grid */
   .pricing-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -484,7 +483,6 @@
   .pricing-card.featured .price-note,
   .pricing-card.elite .price-note { color: rgba(250,248,244,0.45); }
 
-  /* Feature sections */
   .pricing-section-label {
     font-size: 0.65rem;
     letter-spacing: 0.15em;
@@ -763,6 +761,11 @@
     max-width: 480px;
     margin: 0 auto 1.5rem;
     border: 1px solid var(--ink);
+    transition: border-color 0.2s;
+  }
+
+  .contact-form.error {
+    border-color: #c0392b;
   }
 
   .contact-input {
@@ -789,14 +792,65 @@
     text-transform: uppercase;
     cursor: pointer;
     transition: background 0.2s;
+    white-space: nowrap;
   }
 
-  .contact-submit:hover { background: var(--gold); }
+  .contact-submit:hover:not(:disabled) { background: var(--gold); }
+  .contact-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .contact-note {
     font-size: 0.72rem;
     color: var(--ink-muted);
     letter-spacing: 0.05em;
+  }
+
+  .contact-error {
+    font-size: 0.75rem;
+    color: #c0392b;
+    max-width: 480px;
+    margin: -0.75rem auto 1rem;
+    text-align: left;
+    padding-left: 0.25rem;
+    display: none;
+  }
+
+  /* Success state */
+  .contact-success {
+    display: none;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 2rem;
+    border: 0.5px solid var(--rule);
+    background: var(--white);
+  }
+
+  .contact-success.visible { display: block; }
+  .contact-form-wrap.hidden { display: none; }
+
+  .success-icon {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--gold);
+    font-size: 1.1rem;
+  }
+
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+
+  .success-body {
+    font-size: 0.83rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
   }
 
   /* FOOTER */
@@ -1212,11 +1266,21 @@
   <p class="section-label">Get in touch</p>
   <h2 class="contact-title">Ready to get your<br>business <em>online?</em></h2>
   <p class="contact-sub">Drop your email and we'll reach out to chat about your project — no pressure, no commitment.</p>
-  <div class="contact-form">
-    <input type="email" class="contact-input" placeholder="Your email address">
-    <button class="contact-submit">Send →</button>
+
+  <div class="contact-form-wrap" id="contactFormWrap">
+    <div class="contact-form" id="contactForm">
+      <input type="email" class="contact-input" id="contactEmail" placeholder="Your email address">
+      <button class="contact-submit" id="contactSubmit" onclick="handleContactSubmit()">Send →</button>
+    </div>
+    <p class="contact-error" id="contactError">Please enter a valid email address.</p>
+    <p class="contact-note">Or call us directly — we're happy to talk through your options.</p>
   </div>
-  <p class="contact-note">Or call us directly — we're happy to talk through your options.</p>
+
+  <div class="contact-success" id="contactSuccess">
+    <div class="success-icon">✓</div>
+    <p class="success-title">We'll be in touch soon.</p>
+    <p class="success-body">Thanks for reaching out — we've received your email and will get back to you within one business day to chat about your project.</p>
+  </div>
 </section>
 
 <!-- FOOTER -->
@@ -1229,6 +1293,48 @@
     <li><a href="#contact">Contact</a></li>
   </ul>
 </footer>
+
+<script>
+  function handleContactSubmit() {
+    var emailInput = document.getElementById('contactEmail');
+    var submitBtn = document.getElementById('contactSubmit');
+    var contactForm = document.getElementById('contactForm');
+    var errorMsg = document.getElementById('contactError');
+    var formWrap = document.getElementById('contactFormWrap');
+    var successBox = document.getElementById('contactSuccess');
+
+    var email = emailInput.value.trim();
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Clear previous error state
+    contactForm.classList.remove('error');
+    errorMsg.style.display = 'none';
+
+    if (!email || !emailRegex.test(email)) {
+      contactForm.classList.add('error');
+      errorMsg.style.display = 'block';
+      emailInput.focus();
+      return;
+    }
+
+    // Loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    // Simulate a short send delay, then show success
+    setTimeout(function() {
+      formWrap.classList.add('hidden');
+      successBox.classList.add('visible');
+    }, 900);
+  }
+
+  // Allow pressing Enter in the input field
+  document.getElementById('contactEmail').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      handleContactSubmit();
+    }
+  });
+</script>
 
 </body>
 </html>
